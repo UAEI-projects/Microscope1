@@ -25,7 +25,7 @@ from math import sqrt
 
 
 class ImageEditor(QWidget):
-    def __init__(self, image=None):
+    def __init__(self, image=None):     # настройки приложения при старте
         super().__init__()
         self.setWindowTitle("Редактор изображений")
         self.image = image
@@ -45,7 +45,7 @@ class ImageEditor(QWidget):
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout(self)    # создание окна
 
         self.image_label = QLabel(self)
         layout.addWidget(self.image_label)
@@ -53,31 +53,31 @@ class ImageEditor(QWidget):
         # Инструменты
         btn_layout = QHBoxLayout()
         self.load_btn = QPushButton("Загрузить")
-        self.load_btn.clicked.connect(self.load_image)
+        self.load_btn.clicked.connect(self.load_image)            # кнопка загрузить
         btn_layout.addWidget(self.load_btn)
 
         self.save_btn = QPushButton("Сохранить")
-        self.save_btn.clicked.connect(self.save_image)
+        self.save_btn.clicked.connect(self.save_image)               # кнопка сохранить
         btn_layout.addWidget(self.save_btn)
 
         self.pen_btn = QPushButton("Карандаш")
-        self.pen_btn.clicked.connect(lambda: self.select_tool("pen"))
+        self.pen_btn.clicked.connect(lambda: self.select_tool("pen"))             # кнопка карандашшшшшшш
         btn_layout.addWidget(self.pen_btn)
 
         self.eraser_btn = QPushButton("Ластик")
-        self.eraser_btn.clicked.connect(lambda: self.select_tool("eraser"))
+        self.eraser_btn.clicked.connect(lambda: self.select_tool("eraser"))            # кнопка ластичка
         btn_layout.addWidget(self.eraser_btn)
 
         self.arrow_btn = QPushButton("Стрелка")
-        self.arrow_btn.clicked.connect(lambda: self.select_tool("arrow"))
+        self.arrow_btn.clicked.connect(lambda: self.select_tool("arrow"))                     # кнопка стреличка
         btn_layout.addWidget(self.arrow_btn)
 
         self.text_btn = QPushButton("Текст")
-        self.text_btn.clicked.connect(lambda: self.select_tool("text"))
+        self.text_btn.clicked.connect(lambda: self.select_tool("text"))                     # кнопка текст
         btn_layout.addWidget(self.text_btn)
 
         self.color_btn = QPushButton("Цвет")
-        self.color_btn.clicked.connect(self.select_color)
+        self.color_btn.clicked.connect(self.select_color)                      # кнопка выборы выборы цвееееета
         btn_layout.addWidget(self.color_btn)
 
         layout.addLayout(btn_layout)
@@ -102,7 +102,7 @@ class ImageEditor(QWidget):
             self.set_image(self.image)
 
     def load_image(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "", "Images (*.png *.jpg *.jpeg)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "", "Images (*.png *.jpg *.jpeg)")         # кнопка для выбора файла для редоктир
         if file_path:
             self.image = cv2.imread(file_path)
             self.temp_image = self.image.copy()  # сохраняем копию для редактирования
@@ -111,29 +111,29 @@ class ImageEditor(QWidget):
     def set_image(self, image):
         height, width, ch = image.shape
         bytes_per_line = ch * width
-        q_img = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
+        q_img = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)              # разбивка для рисования
         pixmap = QPixmap.fromImage(q_img)
 
         self.image_label.setPixmap(pixmap)
 
     def save_image(self):
         if self.image is not None:
-            file_path, _ = QFileDialog.getSaveFileName(self, "Сохранить изображение", "", "Images (*.png *.jpg *.jpeg)")
+            file_path, _ = QFileDialog.getSaveFileName(self, "Сохранить изображение", "", "Images (*.png *.jpg *.jpeg)")             # кнопка сохранить
             if file_path:
                 cv2.imwrite(file_path, self.image)
                 QMessageBox.information(self, "Сохранено", "Изображение успешно сохранено!")
 
-    def select_tool(self, tool):
+    def select_tool(self, tool):                # для выбора инструмеееента
         self.tool = tool
 
     def select_color(self):
-        color = QColorDialog.getColor(self.pen_color, self)
+        color = QColorDialog.getColor(self.pen_color, self)                # выбор цвита
         if color.isValid():
             self.pen_color = color
 
     def set_scale_factor(self):
         try:
-            scale = float(self.scale_input.text())
+            scale = float(self.scale_input.text())                                    # калебратор
             if scale > 0:
                 self.scale_factor = scale
             else:
@@ -146,7 +146,7 @@ class ImageEditor(QWidget):
             self.last_point = event.pos()
             if self.tool == "pen":
                 self.drawing = True
-            elif self.tool == "scale" and self.is_scaling:
+            elif self.tool == "scale" and self.is_scaling:                       # ивент для понятия где мышь повесилась
                 # Начало рисования линейки
                 self.scale_line_start = event.pos()
             elif self.tool == "text":
@@ -156,18 +156,18 @@ class ImageEditor(QWidget):
     def mouseMoveEvent(self, event):
         if self.drawing and self.tool == "pen":
             painter = QPainter(self.temp_image)
-            painter.setPen(QPen(self.pen_color, 5, Qt.PenStyle.SolidLine))
+            painter.setPen(QPen(self.pen_color, 5, Qt.PenStyle.SolidLine))                        # размер
             painter.drawLine(self.last_point, event.pos())
             self.last_point = event.pos()
             self.update()
 
         elif self.tool == "scale" and self.is_scaling:
-            self.scale_line_end = event.pos()
+            self.scale_line_end = event.pos()                        
             self.update()
 
     def mouseReleaseEvent(self, event):
         if self.drawing and self.tool == "pen":
-            self.drawing = False
+            self.drawing = False                                              # площадь периметр
             self.points.append(self.last_point)  # Добавляем точку
 
             # Пересчитываем площадь и периметр
@@ -185,7 +185,7 @@ class ImageEditor(QWidget):
         # Диалог для ввода реальной длины линии
         length, ok = QInputDialog.getDouble(self, "Введите длину линейки", "Длина (см):", 1, 0, 1000, 2)
         if ok and length > 0:
-            self.scale_length_real = length  # Сохраняем длину линейки в см
+            self.scale_length_real = length  # Сохраняем длину линейки в см                                                 # колебровка
             self.calculate_scale_factor()
 
     def calculate_scale_factor(self):
@@ -194,14 +194,14 @@ class ImageEditor(QWidget):
             np.array([self.scale_line_end.x(), self.scale_line_end.y()]) -
             np.array([self.scale_line_start.x(), self.scale_line_start.y()])
         )
-        self.scale_factor = pixel_distance / self.scale_length_real  # Калибровка: пиксели/см
+        self.scale_factor = pixel_distance / self.scale_length_real                                 # Калибровка: пиксели/см
         self.scale_input.setText(f"{self.scale_factor:.2f}")
 
-    def update_area_and_perimeter(self):
+    def update_area_and_perimeter(self):                           # Вычисляем периметр и площадь по точкам
         if len(self.points) < 3:
             self.area = 0
             self.perimeter = 0
-        else:
+        else:                   
             # Вычисляем периметр и площадь по точкам
             contours = np.array([[(point.x(), point.y()) for point in self.points]], dtype=np.int32)
             area = cv2.contourArea(contours)
